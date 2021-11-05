@@ -5,6 +5,7 @@ include "KenuxLib.vbs"
 include "KenuxAPI.vbs"
 
 ' define variables
+Dim Status
 Dim FSO 			: Set FSO 			= WScript.CreateObject("Scripting.FileSystemObject")
 Dim KenuxHTTPVer	: KenuxHTTPVer		= "1.0"
 Dim bClose 			: bClose 			= True
@@ -29,7 +30,10 @@ End Sub
 
 ' handle request
 Sub Winsock_DataArrival(bytTotal)
-	Dim Data, Path, PData, PathSrv, ConType, GetParams
+	Dim Data, Path, PData, PathSrv, GetParams, ConType
+	
+	' Set status to 500 Internal Server Error if something wents wrong
+	Status = "500 Internal Server Error"
 	
 	' content type, plain text for default
 	ConType = "text/plain"
@@ -74,16 +78,18 @@ Sub Winsock_DataArrival(bytTotal)
 		' if ends with .html, set content type to html
 		If KX_EndsWith(Path, ".html") Then
 			ConType = "text/html"
+			Status = "200 OK"
 			' and send it to the socket (prepared by HTTPCorrectData)
-			Winsock.SendData(HTTPCorrectData(Content, ConType, "200 OK"))
+			Winsock.SendData(HTTPCorrectData(Content, ConType, Status))
 		' If it is VBS/KenuxHTTP file
 		ElseIf KX_EndsWith(Path, ".vbk") Then
 			ConType = "text/html"
+			Status = "200 OK"
 			include Path
 			Dim retcon : retcon = VBKPage_Main(Array(GetParams, PathSrv))
-			Winsock.SendData(HTTPCorrectData(retcon, ConType, "200 OK"))
+			Winsock.SendData(HTTPCorrectData(retcon, ConType, Status))
 		Else
-			Winsock.SendData(HTTPCorrectData(Content, ConType, "200 OK"))
+			Winsock.SendData(HTTPCorrectData(Content, ConType, Status))
 		End If
 
 	' file not exists, send 404
@@ -128,4 +134,5 @@ While True
 	' ---------------------------------------------------- MOST LIKELY PART TO LEAK MEMORY
 	Set WinSock = WScript.CreateObject("MSWinsock.Winsock")
 	ConfigureWinSock WinSock, Port
+	ClearHeaders
 Wend

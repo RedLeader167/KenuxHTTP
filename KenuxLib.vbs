@@ -22,6 +22,16 @@ Function ConfigureWinSock(WS, Port)
 	ConfigureWinSock = WS
 End Function
 
+Sub AddHeader (Header)
+	ReDim Preserve cHeaders(UBound(cHeaders) + 1)
+	cHeaders(UBound(cHeaders)) = Header
+End Sub
+
+Sub ClearHeaders()
+	cHeaders = Array()
+End Sub
+
+Dim cHeaders : cHeaders = Array()
 ' Create valid HTTP response
 Function HTTPCorrectData(Content, ContentType, Status)
 	Dim outdata : outdata = ""
@@ -36,11 +46,15 @@ Function HTTPCorrectData(Content, ContentType, Status)
 	' content type and length
 	outdata = outdata & "Content-Type: " & ContentType & vbCrlf
 	outdata = outdata & "Content-Length: " & Len(Content) & vbCrlf
+	' custom headers
+	For Each header in cHeaders
+		outdata = outdata & header & vbCrlf
+	Next
 	' splitting headers and content
 	outdata = outdata & vbCrlf
 	' content itself
 	outdata = outdata & Content
-	
+
 	' return it
 	HTTPCorrectData = outdata
 End Function
@@ -64,15 +78,3 @@ Function CreateGetParams(URL)
 	Set CreateGetParams = dic
 End Function
 
-sub getxy
-    dim s,a,t,a2
-    s=window.location.search
-    if len(s)<>0 then
-        s=right(s,len(s)-1)
-        a=split(s,"&")
-        for i=0 to 1
-            a2=split(a(i),"=")
-            document.getElementById("coord" & i).innerHTML="name: " & a2(0) & "; value: " & a2(1)
-        next
-    end if
-end sub

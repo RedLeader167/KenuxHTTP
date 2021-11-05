@@ -1,0 +1,5 @@
+Function VBKPage_Main(Args)
+	VBKPage_Main = "<p>Redirecting...</p>"
+	AddHeader "Location: index.html"
+	Status = "301 Moved Permanently"
+End Function
