@@ -1,5 +1,5 @@
 # KenuxHTTP
-HTTP Server in VBScript. 
+HTTP сервер, написанный на VBScript. 
 
-# Running
-To run, open RunServer.bat. It will automatically check for the licenses (MSWinSock.WinSock requires licension), and if not licensed, will patch registry. (CMD REOPEN REQUIRED)
+# Запуск
+Чтобы запустить, откройте RunServer.bat. Сервер сам проверит лицензии (MSWinSock.WinSock требует лицензию), и, если не лицензировано, то пропатчит реестр. (ТРЕБУЕТСЯ ПЕРЕЗАПУСК КОММАНДНОЙ СТРОКИ!)
