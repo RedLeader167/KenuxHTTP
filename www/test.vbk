@@ -1,0 +1,3 @@
+Function VBKPage_Main(Args)
+	VBKPage_Main = "<p>Hello World! <a href=""/"">Return to main page</a></p>"
+End Function

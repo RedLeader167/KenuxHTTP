@@ -1,19 +1,3 @@
-' Ends With Helper Function
-Function EndsWith(String, Value)
-	EndsWith = False
-	If InStrRev(String, Value) = (Len(String) + 1 - Len(Value)) Then
-		EndsWith = True
-	End If
-End Function
-
-' Starts With Helper Function
-Function StartsWith(String, Value)
-	StartsWith = False
-	If InStr(1, String, Value) = 1 Then
-		StartsWith = True
-	End If
-End Function
-
 ' Logging
 Sub LogEvent(Tx)
 	WScript.StdOut.WriteLine("[Сервер] " & Tx)
@@ -60,3 +44,35 @@ Function HTTPCorrectData(Content, ContentType, Status)
 	' return it
 	HTTPCorrectData = outdata
 End Function
+
+' Create Get request parameters
+Function CreateGetParams(URL)
+    dim URL2,a,t,a2,dic
+	Set dic = CreateObject("Scripting.Dictionary")
+    if len(URL)<>0 then
+        URL2=right(URL,len(URL)-1)
+        a=split(URL2,"&")
+        for i=0 to UBound(a)
+            a2=split(a(i),"=")
+            dic.Add a2(0), a2(1)
+        next
+    end if
+	'For each key in dic.Keys
+	'	WScript.Echo key
+	'	WScript.Echo dic(key)
+	'Next
+	Set CreateGetParams = dic
+End Function
+
+sub getxy
+    dim s,a,t,a2
+    s=window.location.search
+    if len(s)<>0 then
+        s=right(s,len(s)-1)
+        a=split(s,"&")
+        for i=0 to 1
+            a2=split(a(i),"=")
+            document.getElementById("coord" & i).innerHTML="name: " & a2(0) & "; value: " & a2(1)
+        next
+    end if
+end sub

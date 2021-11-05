@@ -1,14 +1,15 @@
 Option Explicit
 
+' include kenuxlib
+include "KenuxLib.vbs"
+include "KenuxAPI.vbs"
+
 ' define variables
 Dim FSO 			: Set FSO 			= WScript.CreateObject("Scripting.FileSystemObject")
 Dim KenuxHTTPVer	: KenuxHTTPVer		= "1.0"
 Dim bClose 			: bClose 			= True
 Dim Port 			: Port 				= 6789
 Dim WinSock 		: Set WinSock 		= WScript.CreateObject("MSWinsock.Winsock")
-
-' include kenuxlib
-include "KenuxLib.vbs"
 
 ' configure socket
 ConfigureWinSock WinSock, Port
@@ -28,7 +29,7 @@ End Sub
 
 ' handle request
 Sub Winsock_DataArrival(bytTotal)
-	Dim Data, Path, PData, PathSrv, ConType
+	Dim Data, Path, PData, PathSrv, ConType, GetParams
 	
 	' content type, plain text for default
 	ConType = "text/plain"
@@ -41,25 +42,24 @@ Sub Winsock_DataArrival(bytTotal)
 	PData = Split(Data, vbCrlf)
 	
 	' get the path
-	Path = Split(PData(0), " ")(1)		' full path of internal static file
-	PathSrv = Split(PData(0), " ")(1)	' path from client
-	
+	Path 		= Split(Split(PData(0), " ")(1), "?")(0)	' full path of internal static file
+	PathSrv 	= Split(Split(PData(0), " ")(1), "?")(0)	' path from client
+	If (UBound(Split(Split(PData(0), " ")(1), "?")) + 1) = 2 Then
+		Set GetParams 	= CreateGetParams("?" & Split(Split(PData(0), " ")(1), "?")(1))	' create get params from url
+	Else
+		Set GetParams 	= CreateObject("Scripting.Dictionary")
+	End If
 	' if ends with /, add index.html
 	' for example:
 	' before: /somedir/
 	' after:  /somedir/index.html
-	If EndsWith(Path, "/") Then
+	If KX_EndsWith(Path, "/") Then
 		Path = Path & "index.html"
 	End If
 	
 	' if starts with /, add path to WWW directory
-	If StartsWith(Path, "/") Then
+	If KX_StartsWith(Path, "/") Then
 		Path = FSO.GetParentFolderName(WScript.ScriptFullName) & "/www" & Path
-	End If
-	
-	' if ends with .html, set content type to html
-	If EndsWith(Path, ".html") Then
-		ConType = "text/html"
 	End If
 	
 	' console info
@@ -71,8 +71,20 @@ Sub Winsock_DataArrival(bytTotal)
 		' read file content
 		Dim Content : Content = FSO.OpenTextFile(Path, 1).ReadAll()
 		
-		' and send it to the socket (prepared by HTTPCorrectData)
-		Winsock.SendData(HTTPCorrectData(Content, ConType, "200 OK"))
+		' if ends with .html, set content type to html
+		If KX_EndsWith(Path, ".html") Then
+			ConType = "text/html"
+			' and send it to the socket (prepared by HTTPCorrectData)
+			Winsock.SendData(HTTPCorrectData(Content, ConType, "200 OK"))
+		' If it is VBS/KenuxHTTP file
+		ElseIf KX_EndsWith(Path, ".vbk") Then
+			ConType = "text/html"
+			include Path
+			Dim retcon : retcon = VBKPage_Main(Array(GetParams, PathSrv))
+			Winsock.SendData(HTTPCorrectData(retcon, ConType, "200 OK"))
+		Else
+			Winsock.SendData(HTTPCorrectData(Content, ConType, "200 OK"))
+		End If
 
 	' file not exists, send 404
 	Else
