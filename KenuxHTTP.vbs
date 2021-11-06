@@ -77,17 +77,22 @@ Sub Winsock_DataArrival(bytTotal)
 		
 		' if ends with .html, set content type to html
 		If KX_EndsWith(Path, ".html") Then
+			' It is HTML, so set it ContentType to HTML and status to 200 OK
 			ConType = "text/html"
 			Status = "200 OK"
 			' and send it to the socket (prepared by HTTPCorrectData)
 			Winsock.SendData(HTTPCorrectData(Content, ConType, Status))
 		' If it is VBS/KenuxHTTP file
 		ElseIf KX_EndsWith(Path, ".vbk") Then
+			' It is VBS/KenuxHTTP file, but it returns HTML, so set it ContentType to HTML and status to 200 OK
 			ConType = "text/html"
 			Status = "200 OK"
+			' run VBK
 			include Path
 			Dim retcon : retcon = VBKPage_Main(Array(GetParams, PathSrv))
+			' send it
 			Winsock.SendData(HTTPCorrectData(retcon, ConType, Status))
+		' It is not an HTML/VBK, so send as plain text
 		Else
 			Winsock.SendData(HTTPCorrectData(Content, ConType, Status))
 		End If

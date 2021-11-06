@@ -1,3 +1,3 @@
 Function VBKPage_Main(Args)
-	VBKPage_Main = "<p>Hello World! <a href=""/"">Return to main page</a></p>"
+	VBKPage_Main = "<p>Hello World! It is " & FormatDateTime(Now) &" now. <a href=""test.vbk"">Reload page</a> or <a href=""/"">Return to main page</a></p>"
 End Function

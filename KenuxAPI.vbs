@@ -15,11 +15,15 @@ Function KX_StartsWith(String, Value)
 	End If
 End Function
 
+Function KX_Log(String, Name)
+	WScript.StdOut.WriteLine("["&FormatDateTime(Now, vbShortTime)&"] ["&Name&"]: "&String)
+End Function
+
 Class KX_IniFile
 	Private IniPath
 	
 	Function SetPath(Path)
-		If CreateObject("Scripting.FileSystemObject").FileExists(Path) Then
+		If KX_FSO.FileExists(Path) Then
 			IniPath = Path
 		Else
 			Err.Raise 600 + vbObjectError, "KenuxAPI->KX_IniFile->SetPath", "Path, provided for SetPath, points to an unexisting file."
@@ -74,7 +78,7 @@ Class KX_IniFile
 			Loop
 			objIniFile.Close
 		Else
-			Err.Raise 600 + vbObjectError, "KenuxAPI->KX_IniFile->SetPath", "Path, provided for SetPath, points to an unexisting file."
+			Err.Raise 600 + vbObjectError, "KenuxAPI->KX_IniFile->ReadIni", "Path, used by ReadIni, points to an unexisting file."
 		End If
 	End Function
 End Class
